@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jogo da Memória - MegaStore</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body {
+  background: linear-gradient(135deg, #74ABE2, #5563DE);
+  color: white;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+h1 { margin-bottom: 10px; }
+#tabuleiro {
+  display: grid;
+  grid-template-columns: repeat(4, 100px);
+  grid-gap: 12px;
+}
+.carta {
+  width: 100px;
+  height: 100px;
+  background: #ffffff22;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.carta.revelada {
+  background: white;
+  color: #333;
+}
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+<h1>🧠 Jogo da Memória</h1>
+<p>Combine os pares e ganhe um cupom!</p>
+<div id="tabuleiro"></div>
+<button onclick="reiniciar()">Reiniciar</button>
+
+<script src="script.js"></script>
+<script>
+const emojis = ["🍎","🍌","🍒","🍉","🍇","🍋","🍓","🥝"];
+let cartas = [...emojis, ...emojis];
+let reveladas = [];
+let paresFeitos = 0;
+
+function embaralhar(arr) {
+  return arr.sort(() => 0.5 - Math.random());
+}
+function criarCartas() {
+  const tabuleiro = document.getElementById("tabuleiro");
+  tabuleiro.innerHTML = "";
+  cartas = embaralhar(cartas);
+  cartas.forEach((emoji) => {
+    const carta = document.createElement("div");
+    carta.className = "carta";
+    carta.dataset.valor = emoji;
+    carta.addEventListener("click", () => virarCarta(carta));
+    tabuleiro.appendChild(carta);
+  });
+}
+function virarCarta(carta) {
+  if (reveladas.length < 2 && !carta.classList.contains("revelada")) {
+    carta.classList.add("revelada");
+    carta.textContent = carta.dataset.valor;
+    reveladas.push(carta);
+    if (reveladas.length === 2) verificarPares();
+  }
+}
+function verificarPares() {
+  const [c1, c2] = reveladas;
+  if (c1.dataset.valor === c2.dataset.valor) {
+    paresFeitos++;
+    reveladas = [];
+    if (paresFeitos === emojis.length) {
+      setTimeout(() => {
+        alert("🎉 Parabéns! Você ganhou um cupom de 15% de desconto!");
+        aplicarDesconto("MEMORIA15", 15);
+        window.location.href = "index.html";
+      }, 600);
+    }
+  } else {
+    setTimeout(() => {
+      reveladas.forEach(c => {
+        c.classList.remove("revelada");
+        c.textContent = "";
+      });
+      reveladas = [];
+    }, 800);
+  }
+}
+function reiniciar() {
+  paresFeitos = 0;
+  reveladas = [];
+  criarCartas();
+}
+criarCartas();
+</script>
+</body>
+</html>
